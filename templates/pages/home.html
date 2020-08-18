@@ -1,22 +1,63 @@
-<!doctype html>
-<html lang="en">
-  <head>
-    <!-- Required meta tags -->
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+{% extends 'base.html' %}
 
-    <!-- Bootstrap CSS -->
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
 
-    <title>Hello, world!</title>
-  </head>
-  <body>
-    <h1>Hello, world!</h1>
+{% block head_title %}
+home page
+{% endblock head_title %}
 
-    <!-- Optional JavaScript -->
-    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
-    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js" integrity="sha384-9/reFTGAW83EW2RDu2S0VKaIzap3H66lZH81PoYlFhbGU+6BZp6G7niu735Sk7lN" crossorigin="anonymous"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js" integrity="sha384-B4gt1jrGC7Jh4AgTPSdUtOBvfO8shuf57BaghqFfPlYxofvL8/KUEfYiJOMMV+rV" crossorigin="anonymous"></script>
-  </body>
-</html>
+{% block contents %}
+
+<div class="row text-center">
+    <div class="col">
+        <h2>Welcome to Tweetme 2!</h2>  
+    </div>
+</div>
+
+<div class="row" id="tweets">
+    Loading ...
+</div>
+
+<script>
+    const tweetElement = document.getElementById("tweets");
+    const xhr = new XMLHttpRequest;
+    const method = 'GET';
+    const url = '/tweets';
+    const responseType = 'json';
+
+    function handleLikedTweet(tweet_id, current_count){
+        console.log(tweet_id, current_count);
+    }
+
+    function LikeBtn(tweet) {
+        return "<button class='btn btn-primary' onclick=handleLikedTweet(" + tweet.id + "," + tweet.likes + ")>" + tweet.likes + " Likes</button>"
+    }
+
+    function formatTweetElement(tweet){
+        let tweetElement = "<div class = 'col-12 col-md-10 mx-auto border rounded py-3 mb-4 tweet' id='tweet-" + tweet.id 
+        + "'>" + "<p>" + tweet.content + 
+        "</p><div class='btn-group'>" +
+        LikeBtn(tweet)
+        + "</div></div>";
+        return tweetElement;
+    }
+
+    xhr.responseType = responseType;
+    xhr.open(method,url);
+    xhr.onload = () => {
+        const serverResponse = xhr.response;
+        let listedItems = serverResponse.response;
+        let finalTweetStr = "";
+        let i;
+        for(i=0; i<listedItems.length; i++){
+            let currentItem = listedItems[i];
+            finalTweetStr += formatTweetElement(currentItem);
+        }
+        tweetElement.innerHTML = finalTweetStr;
+
+    }
+    xhr.send();
+
+</script>
+
+
+{% endblock contents %}
