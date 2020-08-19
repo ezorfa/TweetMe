@@ -17,6 +17,7 @@ home page
     <div class="col-md-4 mx-auto col-10">
         <form class="form" id='tweet-create-form' method="POST" action='/create-tweet'>
             {% csrf_token %}
+            <div class='d-none alert alert-danger' id='tweet-create-form-error'></div>
             <input type="hidden" value="/" name="next_url"/>
         <textarea class="form-control" required='required' name="content" placeholder="Your tweet ..."></textarea>
         <button type="submit" class="btn btn-primary">Tweet</button>
@@ -30,27 +31,61 @@ home page
 
 <script>
 
+    function handleTweetError(msg, display=false){
+        let myErrorDiv = document.getElementById("tweet-create-form-error");
+        if (display){
+            myErrorDiv.setAttribute("class", "d-block alert alert-danger");
+            myErrorDiv.innerText = msg;
+        } else {
+            myErrorDiv.setAttribute("class", "d-none alert alert-danger"); 
+        }
+    }
+
     function handleSubmittedForm(event){
         event.preventDefault();
         const myForm = event.target;
         const myFormData = new FormData(myForm);
         const url = myForm.getAttribute("action");
         const method = myForm.getAttribute("method");
-
+        const responseType = 'json';
         const xhr = new XMLHttpRequest; 
+        xhr.responseType = responseType;
         xhr.open(method,url);
         xhr.setRequestHeader("HTTP_X_REQUESTED_WITH","XMLHttpRequest");
         xhr.setRequestHeader("X-Requested-With", "XMLHttpRequest");
         xhr.onload = () => {
             if (xhr.status === 201) {
-                const newTweet = xhr.response;
-                const newTweetJson = JSON.parse(newTweet);
+                const newTweetJson = xhr.response;    
                 // console.log(newTweet.likes);
                 const newTweetElement = formatTweetElement(newTweetJson);
                 const ogHtml = tweetsContainerElement.innerHTML;
                 tweetsContainerElement.innerHTML = newTweetElement + ogHtml;
                 myForm.reset();
+            } else if (xhr.status === 400){
+                const errorJson = xhr.response;
+                const errorContent = errorJson.content;
+                let errorMsg;
+                if (errorContent){
+                    errorMsg = errorContent[0];
+                    if (errorMsg){
+                        handleTweetError(errorMsg, true);
+                    } else {
+                    alert("An error ocurred...")
+                    }
+                } else {
+                    alert("An error ocurred..!")
+                }
+                
             }
+            else if (xhr.status === 401){
+                alert("You must login");
+            }
+            else if (xhr.status === 500){
+                alert("An error ocurred. Please try again later");
+            }
+        }
+        xhr.onerror = function () {
+            alert("An error ocurred. Please try again later");
         }
         xhr.send(myFormData);
         // console.log(event);
