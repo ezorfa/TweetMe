@@ -108,7 +108,8 @@ home page
         xhr.open(method,url);
         xhr.onload = () => {
             const serverResponse = xhr.response;
-            let listedItems = serverResponse.response;
+            // let listedItems = serverResponse.response; //pure_django
+            let listedItems = serverResponse;
             let finalTweetStr = "";
             let i;
             for(i=0; i<listedItems.length; i++){

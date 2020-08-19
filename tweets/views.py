@@ -4,19 +4,46 @@ from django.conf import settings
 from django.http import HttpResponse, Http404, JsonResponse
 from django.shortcuts import render, redirect
 from django.utils.http import is_safe_url
-  
+from rest_framework.response import Response
+from rest_framework.decorators import api_view
+
 from .models import Tweet
 from .forms import TweetForm
+from .serializers import TweetSerializer
 
 # Create your views here.
 
 ALLOWED_HOSTS = settings.ALLOWED_HOSTS
 
 def home_view(request, *args, **kwargs):
-    #return HttpResponse(f"<h1> Hello Afroze , {kwargs['tweet_id']} </h1>")
     return render(request, "pages/home.html", status = 200)
 
+@api_view(['POST'])
 def tweet_create_view(request, *args, **kwargs):
+    mySerializer = TweetSerializer(data=request.POST)
+    if mySerializer.is_valid(raise_exception=True):
+        mySerializer.save(user=request.user)
+        return Response(mySerializer.data, status=201)
+    return Response({}, status=400)
+
+@api_view(['GET'])
+def tweet_detail_view(request, *args, **kwargs):
+    qs = Tweet.objects.filter(id=kwargs['tweet_id'])
+    if not qs.exists():
+        return Response({}, status=404)
+    obj = qs.first()
+    mySerializer = TweetSerializer(obj)
+    return Response(mySerializer.data, status=200)
+    
+@api_view(['GET'])
+def tweet_list_view(request, *args, **kwargs):
+    qs = Tweet.objects.all()
+    mySerializer = TweetSerializer(qs, many=True)
+    return Response(mySerializer.data)
+
+
+# PURE DJANGOS ==============================================================
+def tweet_create_view_pure_django(request, *args, **kwargs):
     '''
     REST API CREATE View -> DRF
     '''
@@ -48,7 +75,7 @@ def tweet_create_view(request, *args, **kwargs):
     return render(request, 'components/form.html', context={"form" : form})
 
 
-def tweet_list_view(request, *args, **kwargs):
+def tweet_list_view_pure_django(request, *args, **kwargs):
     qs = Tweet.objects.all()
     tweets_list = [x.serialize() for x in qs]
     data = {
@@ -58,7 +85,7 @@ def tweet_list_view(request, *args, **kwargs):
     return JsonResponse(data) 
 
 
-def tweet_detail_view(request, *args, **kwargs):
+def tweet_detail_view_pure_django(request, *args, **kwargs):
     """
         REST API VIEW
         consume by frontend 
