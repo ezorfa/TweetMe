@@ -15,5 +15,6 @@
     - Creating - image and text
     - Deleting
     - Retweeting
+    - Liking, Unliking
 
 3. Following/ Followers

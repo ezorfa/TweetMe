@@ -80,6 +80,9 @@ home page
             else if (xhr.status === 401){
                 alert("You must login");
             }
+            else if (xhr.status === 403){
+                alert("You must login");
+            }
             else if (xhr.status === 500){
                 alert("An error ocurred. Please try again later");
             }
@@ -124,19 +127,63 @@ home page
 
     loadTweets(tweetsContainerElement);
 
-    function handleLikedTweet(tweet_id, current_count){
-        console.log(tweet_id, current_count);
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                // Does this cookie string begin with the name we want?
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+
+    function handleTweetAction(tweet_id, current_count, action){
+        // console.log(tweet_id, current_count);
+        const url = "/api/tweets/action";
+        const method = "POST";
+        const data = JSON.stringify({
+            'id' : tweet_id,
+            'action' : action
+        });
+
+        const xhr = new XMLHttpRequest();
+        const csrftoken = getCookie('csrftoken'); 
+        xhr.open(method, url);
+        xhr.setRequestHeader("Content-Type", "application/json");
+        xhr.setRequestHeader("HTTP_X_REQUESTED_WITH","XMLHttpRequest");
+        xhr.setRequestHeader("X-Requested-With", "XMLHttpRequest");
+        xhr.setRequestHeader("X-CSRFToken", csrftoken );
+        xhr.onload = function () {    
+            // console.log(xhr.status, xhr.response)
+            loadTweets(tweetsContainerElement); // in react.js handle state much better
+        };
+        xhr.send(data);
+        return;
+    }
+
+    function RetweetBtn(tweet) {
+        return "<button class='btn btn-outline-success btn-sm' onclick=handleTweetAction(" + tweet.id + "," + tweet.likes +  ",'retweet')>Retweet</button>"
+    }
+
+    function UnLikeBtn(tweet) {
+        return "<button class='btn btn-outline-primary btn-sm' onclick=handleTweetAction(" + tweet.id + "," + tweet.likes +  ",'unlike')>Unlike</button>"
     }
 
     function LikeBtn(tweet) {
-        return "<button class='btn btn-primary' onclick=handleLikedTweet(" + tweet.id + "," + tweet.likes + ")>" + tweet.likes + " Likes</button>"
+        return "<button class='btn btn-primary btn-sm' onclick=handleTweetAction(" + tweet.id + "," + tweet.likes +  ",'like')>" + tweet.likes + " Likes</button>"
     }
 
     function formatTweetElement(tweet){
         let tweetElement = "<div class = 'col-12 col-md-10 mx-auto border rounded py-3 mb-4 tweet' id='tweet-" + tweet.id 
         + "'>" + "<p>" + tweet.content + 
         "</p><div class='btn-group'>" +
-        LikeBtn(tweet)
+        LikeBtn(tweet) + UnLikeBtn(tweet)  + RetweetBtn(tweet)  
         + "</div></div>";
         return tweetElement;
     }
