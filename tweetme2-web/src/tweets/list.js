@@ -27,7 +27,7 @@ export function TweetList(props){
           }
           apiTweetList(props.username , myCallback, props.username)
         }
-      }, [tweetsInit, tweetsDidSet, setTweetsDidSet])
+      }, [tweetsInit, tweetsDidSet, setTweetsDidSet, props.username])
   
       const handleDidRetweet = (newTweet) => {
         const updateTweetsInit = [...tweetsInit]
