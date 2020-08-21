@@ -22,7 +22,7 @@ def home_view(request, *args, **kwargs):
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def tweet_create_view(request, *args, **kwargs):
-    mySerializer = TweetCreateSerializer(data=request.POST)
+    mySerializer = TweetCreateSerializer(data=request.data)
     if mySerializer.is_valid(raise_exception=True):
         mySerializer.save(user=request.user)
         return Response(mySerializer.data, status=201)
@@ -77,12 +77,15 @@ def tweet_action_view(request, *args, **kwargs):
         elif action == 'retweet':
             new_tweet = Tweet.objects.create(user=request.user, parent=obj, content=content)
             mySerializer = TweetSerializer(new_tweet)
-            return Response(mySerializer.data, status=201)
+            return Response(mySerializer.data, status=201) 
         return Response({'message' : "Tweet Liked"}, status=200)
     
 @api_view(['GET'])
 def tweet_list_view(request, *args, **kwargs):
     qs = Tweet.objects.all()
+    username = request.GET.get('username')
+    if username != None:
+         qs = qs.filter(user__username__iexact = username)
     mySerializer = TweetSerializer(qs, many=True)
     return Response(mySerializer.data)
 
