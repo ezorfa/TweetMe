@@ -6,7 +6,7 @@ import * as serviceWorker from './serviceWorker';
 import { TweetComponent, TweetDetailComponent } from './tweets';
 
 const e = React.createElement
-const tweetsEl = document.getElementById('root')
+const tweetsEl = document.getElementById('tweetme-2')
 
 if (tweetsEl) {
 ReactDOM.render( e(TweetComponent, tweetsEl.dataset), tweetsEl);
