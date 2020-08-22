@@ -3,13 +3,14 @@ import {TweetList} from './list'
 import {TweetCreate} from './create'
 import {Tweet, ParentTweet} from './detail'
 
-import {TweetComponent, TweetDetailComponent} from './components'
+import {FeedComponent, TweetComponent, TweetDetailComponent} from './components'
 
 export {
     ActionBtn,
     Tweet,
     TweetList,
     TweetComponent,
+    FeedComponent,
     ParentTweet,
     TweetCreate,
     TweetDetailComponent

@@ -3,14 +3,19 @@ import ReactDOM from 'react-dom';
 import './index.css';
 // import App from './App';
 import * as serviceWorker from './serviceWorker';
-import { TweetComponent, TweetDetailComponent } from './tweets';
+import { FeedComponent, TweetComponent, TweetDetailComponent } from './tweets';
 
 const e = React.createElement
 const tweetsEl = document.getElementById('tweetme-2')
-
 if (tweetsEl) {
 ReactDOM.render( e(TweetComponent, tweetsEl.dataset), tweetsEl);
 }
+const eFeed = React.createElement
+const tweetFeedEl = document.getElementById('tweetme-2-feed')
+if (tweetsEl) {
+ReactDOM.render( eFeed(FeedComponent, tweetFeedEl.dataset), tweetFeedEl);
+}
+
 
 const tweetDetailElements = document.querySelectorAll('.tweetme-2-detail')
 
