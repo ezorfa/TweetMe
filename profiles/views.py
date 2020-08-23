@@ -29,18 +29,22 @@ def profile_update_view(request, *args, **kwargs):
         user.email_address = email_address
         user.save()
         profile_obj.save()
-    context = {
-        "form" : form,
-        "btn_label" : "Save",
-        "title" : "Update profile",
-            }
+        context = {
+            "form" : form,
+            "btn_label" : "Save",
+            "title" : "Update profile",
+                }
     return render(request, "profiles/form.html", context)
 
 def profile_detail_view(request, username, *args, **kwargs):
     qs = Profile.objects.filter(user__username = username)
     if not qs.exists():
         raise Http404
-    profile_obj = qs.first
+    profile_obj = qs.first()
+    if request.user.is_authenticated:
+        user = request.user
+        is_following = user in profile_obj.followers.all()
+    
     context = {
         "username" : username,
         "profile" : profile_obj
